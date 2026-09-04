@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루틴보드 — 주간보고·업무배정·리스크점검·회고를 링크 하나로</title>
+<meta name="description" content="매주 보고서 쓰고, 일감 나누고, 리스크 점검하고, 회고까지 — PM이 반드시 챙겨야 하는 루틴을 링크 하나로 관리하는 무료 도구입니다. 가입 없이 바로 만들고 팀과 링크만 공유하면 됩니다.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand"><span class="mark">R</span> 루틴보드</div>
+    <nav class="site-nav">
+      <a href="guide/routine-cadence.html">가이드</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">전용 링크로 안전하게 공유 · 초대 없이 바로 참여 · 추가 비용 없는 팀 협업</div>
+      <h1>매주 보고서 쓰고, 일감 나누고, 리스크 점검하고, 회고까지 — PM이 반드시 챙겨야 하는 루틴을 링크 하나로.</h1>
+      <p class="lede">루틴보드는 상태보고서·워크로드·리스크매트릭스·회고보드 4개를 한 링크 안에서 함께 관리하는 올인원 도구입니다. B그룹(PM 필수 루틴) 4개를 통합한 버전으로, 매주 반복되는 관리 업무를 한곳에서 처리할 수 있습니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="card" style="max-width:520px;">
+        <h2>새 루틴보드 만들기</h2>
+        <div class="field">
+          <label for="title">루틴보드 이름</label>
+          <input type="text" id="title" placeholder="예: 9월 신규 서비스 운영 루틴">
+        </div>
+        <button class="btn" id="createBtn" style="width:100%;">루틴보드 만들고 시작하기</button>
+        <p id="errorMsg" style="color:#C0362C; font-size:0.85rem; margin-top:10px; display:none;"></p>
+      </div>
+
+      <div class="card" id="recentBoardsCard" style="max-width:520px; margin-top:16px; display:none;">
+        <h2 style="font-size:1.02rem; margin-bottom:4px;">최근 만든 루틴보드</h2>
+        <p style="font-size:0.8rem; color:var(--ink-faint); margin:0 0 10px;">이 브라우저에서 최근에 만든 루틴보드만 보여줍니다. 팀과 공유하려면 보드 안의 링크를 복사해 따로 저장해두세요. "목록에서 지우기"는 이 목록에서만 안 보이게 할 뿐, 실제 보드 데이터는 지워지지 않습니다.</p>
+        <div id="recentBoardsList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>한 링크 안에 네 가지가 함께 있습니다</h2>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="tag">상태보고서</div>
+          <h3>주간 보고</h3>
+          <p>보고서 날짜별로 상태 신호등(정상·주의·위험)과 진행 요약, 이슈, 다음 주 계획을 기록합니다.</p>
+        </div>
+        <div class="guide-card">
+          <div class="tag">워크로드</div>
+          <h3>업무 배정</h3>
+          <p>담당자별로 업무를 묶어서 보여주고, 진행중 건수를 한눈에 확인합니다.</p>
+        </div>
+        <div class="guide-card">
+          <div class="tag">리스크매트릭스</div>
+          <h3>리스크 점검</h3>
+          <p>확률×영향으로 리스크 등급을 자동 계산하고, 대응 계획과 담당자를 함께 기록합니다.</p>
+        </div>
+        <div class="guide-card">
+          <div class="tag">회고</div>
+          <h3>잘한점·아쉬운점·다음액션</h3>
+          <p>팀원 누구나 회고 항목을 남기고, 다음 액션까지 같은 화면에서 정리합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div style="margin-bottom:10px;">
+      <a href="guide/routine-cadence.html">PM 루틴 요일별로 흩어놓기</a>
+      <a href="guide/routine-vs-adhoc.html">루틴형 업무와 돌발 업무 구분하기</a>
+      <a href="faq.html">FAQ</a>
+      <a href="privacy.html">개인정보처리방침</a>
+      <a href="terms.html">이용약관</a>
+    </div>
+    <div>&copy; 2026 루틴보드. PM이 매주 반복하는 루틴이, 링크 하나로 한눈에 보이도록.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  const createBtn = document.getElementById("createBtn");
+  const titleInput = document.getElementById("title");
+  const errorMsg = document.getElementById("errorMsg");
+
+  async function handleCreate() {
+    const title = titleInput.value.trim();
+    if (!title) {
+      titleInput.focus();
+      return;
+    }
+    createBtn.disabled = true;
+    createBtn.textContent = "만드는 중...";
+    errorMsg.style.display = "none";
+    try {
+      const routine = await createRoutine(title);
+      saveRecentBoard(title, routine.share_code);
+      window.location.href = `board.html?r=${routine.share_code}`;
+    } catch (e) {
+      errorMsg.textContent = "루틴보드를 만들지 못했습니다. config.js에 Supabase 연결 정보가 올바른지, 스키마가 실행되었는지 확인해주세요. (" + (e.message || e) + ")";
+      errorMsg.style.display = "block";
+      createBtn.disabled = false;
+      createBtn.textContent = "루틴보드 만들고 시작하기";
+    }
+  }
+
+  createBtn.addEventListener("click", handleCreate);
+  titleInput.addEventListener("keydown", (e) => { if (e.key === "Enter") handleCreate(); });
+
+  renderRecentBoards("recentBoardsList", "recentBoardsCard");
+</script>
+</body>
+</html>
